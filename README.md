@@ -10,6 +10,8 @@ The more triangles you use, the smallest atlas you'll get. It also means more CP
 
 With SpriteUV2, please set **Pixel Per Unit** to **1** in the **exportGroup** panel. One more advice with this tool: check **As Single File** option.
 
+With TexturePacker, use **XML (generic)** exporter and then set **Algorithm** to **Polygon**. I also recommend to set **Extrude** to **0**.
+
 # Example (openfl)
 
     var data:SpriteUVParser = new SpriteUVParser(Assets.getText('atlas/atlas.json'));
