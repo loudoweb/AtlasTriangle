@@ -1,5 +1,5 @@
 # AtlasTriangle
-Allow to use atlas packed with triangles with such tools as **SpriteUV2** or **TexturePacker** for Haxe language.
+Allow to use atlas packed with triangles with such tools as [SpriteUV2](https://www.spriteuv.com) or [TexturePacker](https://www.codeandweb.com/texturepacker/) for Haxe language.
 
 # Render
 For now, there is no renderer included (TODO).
