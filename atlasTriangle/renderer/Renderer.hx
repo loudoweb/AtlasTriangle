@@ -3,7 +3,9 @@ import atlasTriangle.SpriteTriangle;
 import haxe.ds.StringMap;
 import openfl.Vector;
 import openfl.display.BitmapData;
+import openfl.display.Shader;
 import openfl.display.Sprite;
+import atlasTriangle.shaders.AlphaGraphicsShader;
 
 /**
  * ...
@@ -17,10 +19,12 @@ class Renderer
 	var _bufferCoor:Vector<Float>;
 	var _bufferUV:Vector<Float>;
 	var _bufferIndices:Vector<Int>;
+	var _bufferAlpha:Array<Float>;
 	
 	var _canvas:Sprite;
 	
 	var _lastBitmap:String;
+	var _lastShader:AlphaGraphicsShader;
 	
 	public var isDirty:Bool;
 	
@@ -33,6 +37,7 @@ class Renderer
 		_bufferCoor = new Vector<Float>();
 		_bufferUV = new Vector<Float>();
 		_bufferIndices = new Vector<Int>();
+		_bufferAlpha = [];
 		bitmaps = new StringMap<BitmapData>();
 	}
 	
@@ -43,6 +48,7 @@ class Renderer
 			cleanBuffers();
 						
 			_lastBitmap = "";
+			_lastShader = null;
 			var _current:SpriteTriangle;
 			var _len = 0;
 			var _len2 = 0;
@@ -56,7 +62,8 @@ class Renderer
 				if (_current.textureID != _lastBitmap) {
 					if (_lastBitmap != "")
 					{
-						render(_lastBitmap);
+						_lastShader = _current.shader;
+						render(_lastBitmap, _current.shader);
 						_lastBitmap = _current.textureID;
 						_len = 0;
 						_len2 = 0;
@@ -77,26 +84,27 @@ class Renderer
 					_bufferUV[_len2 + j] = _current.uv[j];
 				}
 				_len2 += _current.uv.length;
-				trace('uv', _len2);
-
+				
 				for (j in 0..._current.indices.length)
 				{
+					_bufferAlpha[_len3 + j] = _current.alpha;
 					_bufferIndices[_len3 + j] = _current.indices[j] + Std.int(_len / 2);
 				}
 				_len3 += _current.indices.length;
-				trace('coor', _len3);
 				
 				for (j in 0..._current.coor_computed.length)
 				{
 					_bufferCoor[_len + j] = _current.coor_computed[j];
 				}
 				_len += _current.coor_computed.length;
-				trace('coor', _len);
+				
+				
 
+				_lastShader = _current.shader;
 			}
 			
 			isDirty = false;
-			render(_lastBitmap);
+			render(_lastBitmap, _lastShader);
 			
 		}else {
 			//render(); ???
@@ -109,9 +117,10 @@ class Renderer
 		_bufferCoor.splice(0, _bufferCoor.length);
 		_bufferUV.splice(0, _bufferUV.length);
 		_bufferIndices.splice(0, _bufferIndices.length);
+		_bufferAlpha.splice(0, _bufferAlpha.length);
 	}
 	
-	function render(bitmapID:String):Void
+	function render(bitmapID:String, shader:AlphaGraphicsShader):Void
 	{
 			
 	}

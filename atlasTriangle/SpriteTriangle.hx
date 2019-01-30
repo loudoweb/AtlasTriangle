@@ -2,6 +2,8 @@ package atlasTriangle;
 
 import atlasTriangle.parser.Mesh;
 import openfl.Vector;
+import openfl.display.Shader;
+import atlasTriangle.shaders.AlphaGraphicsShader;
 
 /**
  * ...
@@ -10,13 +12,16 @@ import openfl.Vector;
 class SpriteTriangle extends Mesh
 {
 	
-	public var isDirty:Bool;
+	
 
 	@:isVar public var x(default, set):Float;
 	@:isVar public var y(default, set):Float;
-	public var coor_computed:Vector<Float>;
+	@:isVar public var alpha(default, set):Float;
+	@:isVar public var shader(default, set):AlphaGraphicsShader;
+	@:isVar public var rotation(default, set):Int;
 	
-	public var rotation:Int;
+	public var coor_computed:Vector<Float>;
+	public var isDirty:Bool;
 	
 	//TODO color, blend, shader
 	
@@ -26,6 +31,7 @@ class SpriteTriangle extends Mesh
 		coor_computed = new Vector<Float>();
 		x = 0;
 		y = 0;
+		alpha = 1;
 	}
 	
 	public function set_x(_x:Float):Float
@@ -46,6 +52,36 @@ class SpriteTriangle extends Mesh
 		y = _y;
 
 		return _y;
+	}
+	
+	public function set_alpha(_alpha:Float):Float
+	{
+		if (alpha != _alpha)
+			isDirty = true;
+		
+		alpha = _alpha;
+		
+		return _alpha;
+	}
+	
+	public function set_shader(_shader:AlphaGraphicsShader):AlphaGraphicsShader
+	{
+		if (shader != _shader)
+			isDirty = true;
+		
+		shader = _shader;
+
+		return _shader;
+	}
+	
+	public function set_rotation(_rotation:Int):Int
+	{
+		if (rotation != _rotation)
+			isDirty = true;
+		
+		rotation = _rotation;
+
+		return _rotation;
 	}
 	
 	public function compute():Vector<Float>

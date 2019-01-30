@@ -1,7 +1,10 @@
 package atlasTriangle.renderer;
 import atlasTriangle.parser.AtlasTriangle;
 import openfl.display.BitmapData;
+import openfl.display.Shader;
 import openfl.display.Sprite;
+import openfl.filters.ShaderFilter;
+import atlasTriangle.shaders.AlphaGraphicsShader;
 
 /**
  * ...
@@ -34,10 +37,16 @@ class DrawTrianglesRenderer extends Renderer
 		}
 	}
 	
-	override function render(bitmapID:String):Void 
+	override function render(bitmapID:String, shader:AlphaGraphicsShader):Void 
 	{
-		trace(bitmapID, "\n",_bufferCoor,"\n", _bufferIndices,"\n", _bufferUV);
-		_canvas.graphics.beginBitmapFill(bitmaps.get(bitmapID));
+		
+		shader.bitmap.input = bitmaps.get(bitmapID);
+		shader.alpha.value = _bufferAlpha;
+		trace(_bufferAlpha.length, _bufferIndices.length);
+		trace(_bufferAlpha);
+		
+		_canvas.graphics.beginShaderFill(shader, null);
+		
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
 		
 	}
