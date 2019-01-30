@@ -1,17 +1,21 @@
 package atlasTriangle.parser;
+import openfl.Vector;
+using StringTools;
 
 /**
- * ...
+ * Atlas packed with triangles/polygons instead of squares.
+ * Should reduce size of atlas and drawing surface, but takes more memory to manage more triangles.
  * @author loudo
  */
 class AtlasTriangle
 {
 
-	public var mesh:Map<String, SpriteTriangle>;
+	public var meshes:Map<String, Mesh>;
+	public var textureID:String;
 	
 	public function new() 
 	{
-		mesh = new Map<String, SpriteTriangle>();
+		meshes = new Map<String, Mesh>();
 	}
 	
 	/**
@@ -21,22 +25,38 @@ class AtlasTriangle
 	 * @param	uv
 	 * @param	coordinates
 	 */
-	public function add(name:String, indices:Array<Int>, uv:Array<Float>, coordinates:Array<Float>)
+	public function add(name:String, indices:Vector<Int>, uv:Vector<Float>, coordinates:Vector<Float>)
 	{
-		mesh.set(name, new SpriteTriangle(indices, uv, coordinates));
+		meshes.set(name, new Mesh(indices, uv, coordinates, textureID));
 	}
 	/**
-	 *  Get data of a Sprite
+	 * Get data of a Sprite
 	 * @param	name of the Sprite in the atlas
 	 * @return
 	 */
-	public function get(name:String):SpriteTriangle
+	public function get(name:String):Mesh
 	{
-		if (mesh.exists(name))
+		if (meshes.exists(name))
 		{
-			return mesh.get(name);
+			return meshes.get(name);
 		}
 		return null;
+	}
+	/**
+	 * Get data of a Clip
+	 * @param	name of the Sprite in the atlas
+	 * @return
+	 */
+	public function getClip(name:String):Array<Mesh>
+	{
+		var clip = new Array<Mesh>();
+		for (key in meshes.keys())
+		{
+			if (key.startsWith(name)) 
+				clip.push(meshes.get(key));
+		}
+		//TODO ordering? cache?
+		return clip;
 	}
 	
 }

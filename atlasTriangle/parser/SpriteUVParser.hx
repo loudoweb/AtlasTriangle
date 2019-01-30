@@ -39,7 +39,7 @@ class SpriteUVParser extends AtlasTriangle
 		super();
 		
 		var data:SpriteUV = haxe.Json.parse(json);
-		
+		textureID = data.mat.txName;
 		
 		for (i in 0...data.mesh.length)
 		{

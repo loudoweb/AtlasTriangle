@@ -1,30 +1,137 @@
 package atlasTriangle.parser;
 import atlasTriangle.parser.AtlasTriangle;
 import haxe.xml.Fast;
+import openfl.Vector;
+
+typedef TexturePackerPolygon = {
+  var frames:Array<Sprite>;
+  var meta:Meta;
+}
+typedef Meta = {
+	var image:String;
+	var size:Size;
+}
+typedef Size = {
+	var w:Int;
+	var h:Int;
+}
+typedef Sprite = {
+	var filename:String;
+	var frame:Frame;
+	var rotated:Bool;
+	var trimmed:Bool;
+	var pivot:Pivot;
+	var vertices:Array<Array<Float>>;
+	var verticesUV:Array<Array<Float>>;
+	var triangles:Array<Array<Int>>;
+}
+typedef Frame = {
+	var x:Int;
+	var y:Int;
+	var w:Int;
+	var h:Int;
+}
+typedef Pivot = {
+	var x:Int;
+	var y:Int;
+}
 
 /**
  * Tools: TexturePacker
- * Export format: XML (generic) with Algorithm: Polygon
- * Limitation: for now the atlas needs to be Power of 2.
+ * Export format: XML (generic) or JSON (generic) with Algorithm: Polygon
  * @author loudo
  */
 class TexturePackerParser extends AtlasTriangle
 {
 
-	public function new(xml:Xml, atlasSize:Int) 
+	public static function parseXML(xml:Xml):TexturePackerParser
 	{
-		super();
-		
+		var t = new TexturePackerParser();
 		var fast:Fast = new Fast(xml.firstElement());
+		
+		t.textureID = fast.att.imagePath;
+		
+		var w = Std.parseInt(fast.att.width);
+		var h = Std.parseInt(fast.att.height);
+		
+		var i:Int;
 		
 		for (sprite in fast.nodes.sprite)
 		{
-			var indices:Array<Int> = sprite.node.triangles.innerData.toString().split(' ').map(function (str:String) return Std.parseInt(str));
-			var uv:Array<Float> = sprite.node.verticesUV.innerData.toString().split(' ').map(function (str:String) return Std.parseInt(str) / atlasSize);
-			var vertices:Array<Float> = sprite.node.vertices.innerData.toString().split(' ').map(function (str:String) return Std.parseFloat(str));
-			add(sprite.att.n, indices, uv, vertices);
+			i = 0;
+			
+			var indices:Vector<Int> = Vector.ofArray(sprite.node.triangles.innerData.toString().split(' ').map(Std.parseInt));
+			var uv:Vector<Float> = Vector.ofArray(sprite.node.verticesUV.innerData.toString().split(' ').map(function (str:String) return i % 2 == 0 ? Std.parseInt(str) / w : Std.parseInt(str) / h));
+			var vertices:Vector<Float> = Vector.ofArray(sprite.node.vertices.innerData.toString().split(' ').map(Std.parseFloat));
+			/**
+			//TODO test this instead of map for performance
+			 var index = 0, search = -1, lastSearch = 0;
+				while ((search = text.indexOf (",", lastSearch)) > -1) {
+					indices[index] = Std.parseInt(text.substr(lastSearch, search);
+					index++;
+				}
+			 */
+			t.add(sprite.att.n, indices, uv, vertices);
+		}
+		return t;
+	}
+	
+	public static function parseJSON(json:String):TexturePackerParser
+	{
+		var t = new TexturePackerParser();
+		
+		var data:TexturePackerPolygon = haxe.Json.parse(json);
+		
+		t.textureID = data.meta.image;
+		var w = data.meta.size.w;
+		var h = data.meta.size.h;
+		
+		
+		var indices:Vector<Int> = new Vector<Int>();
+		var vertices:Vector<Float> = new Vector<Float>();
+		var uv:Vector<Float> = new Vector<Float>();
+		
+		for (i in 0...data.frames.length)
+		{
+			var mesh = data.frames[i];
+			for (j in 0...mesh.triangles.length)
+			{
+				for (k in 0...3)
+				{
+					indices.push(mesh.triangles[j][k]);
+				}
+				
+			}
+			
+			for (j in 0...mesh.vertices.length)
+			{
+				for (k in 0...2)
+				{
+					vertices.push(mesh.vertices[j][k]);
+				}
+				
+			}
+				
+			for (j in 0...mesh.verticesUV.length)
+			{
+				for (k in 0...2)
+				{
+					if (k == 0)
+						uv.push(mesh.verticesUV[j][k] / w);
+					else
+						uv.push(mesh.verticesUV[j][k] / h);
+				}
+			}
+			
+			t.add(mesh.filename, indices, uv, vertices);
 		}
 		
+		return t;
+	}
+	
+	public function new() 
+	{
+		super();
 	}
 	
 }
