@@ -114,10 +114,21 @@ class Renderer
 	
 	inline function cleanBuffers():Void
 	{
+		
+		#if flash
 		_bufferCoor.splice(0, _bufferCoor.length);
 		_bufferUV.splice(0, _bufferUV.length);
 		_bufferIndices.splice(0, _bufferIndices.length);
 		_bufferAlpha.splice(0, _bufferAlpha.length);
+		#else
+		//don't use splice to empty the buffers, otherwise Vector sent will be overwritten before rendering
+		//TODO use pool
+		_bufferCoor = new Vector<Float>();
+		_bufferUV = new Vector<Float>();
+		_bufferIndices = new Vector<Int>();
+		_bufferAlpha = [];
+		#end
+		
 	}
 	
 	function render(bitmapID:String, shader:AlphaGraphicsShader):Void
