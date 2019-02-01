@@ -40,13 +40,16 @@ class DrawTrianglesRenderer extends Renderer
 	override function render(bitmapID:String, shader:AlphaGraphicsShader):Void 
 	{
 		
+		
+		#if flash
+		//TODO pxb for the flash shader??
+		//for now alpha is not supported on flash
+		_canvas.graphics.beginBitmapFill(bitmaps.get(bitmapID), null, false, true);
+		#else
 		shader.bitmap.input = bitmaps.get(bitmapID);
 		shader.alpha.value = _bufferAlpha;
-		trace(_bufferAlpha.length, _bufferIndices.length);
-		trace(_bufferAlpha);
-		
 		_canvas.graphics.beginShaderFill(shader, null);
-		
+		#end
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
 		
 	}
