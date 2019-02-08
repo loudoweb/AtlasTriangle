@@ -13,18 +13,42 @@ With SpriteUV2, please set **Pixel Per Unit** to **1** in the **exportGroup** pa
 With TexturePacker, use **XML (generic)** exporter and then set **Algorithm** to **Polygon**. I also recommend to set **Extrude** to **0**.
 
 # Example (openfl)
-
-    var data:SpriteUVParser = new SpriteUVParser(Assets.getText('atlas/atlas.json'));
-		var data2:TexturePackerParser = new TexturePackerParser(Xml.parse(Assets.getText('atlas/atlas2.xml')), 4096);
-		
-		var img = Assets.getBitmapData("atlas/atlas.png");
-		var img2 = Assets.getBitmapData("atlas/atlas2.png");
-		
-		var mesh = data.get("image01");
-		var mesh2 = data2.get("image02.png");
-		
-		graphics.beginBitmapFill(img, null, false, true);
-		graphics.drawTriangles(mesh.coordinates.map(function(f:Float):Float { return f + 100; } ), mesh.indices, mesh.uv);
-		graphics.beginBitmapFill(img2, null, false, true);
-		graphics.drawTriangles(mesh2.coordinates.map(function(f:Float):Float { return f + 250; } ), mesh2.indices, mesh2.uv);
-		graphics.endFill();
+	
+	//create the renderer
+	renderer = new DrawTrianglesRenderer(this);
+	
+	//create atlases data
+    var data1 = TexturePackerParser.parseXML(Xml.parse(Assets.getText("atlas/atlas1.xml")));
+	var data2 = TexturePackerParser.parseXML(Xml.parse(Assets.getText("atlas/atlas2.xml")));
+	//add atlas bitmap to renderer
+	var img1:BitmapData = Assets.getBitmapData("atlas/atlas1.png");
+	var img2:BitmapData = Assets.getBitmapData("atlas/atlas2.png");
+	//set name of bitmap used in atlases xml
+	renderer.bitmaps.set("atlas1.png", img);
+	renderer.bitmaps.set("atlas2.png", img2);
+	
+	//get meshes (shared data)
+	var mesh1 = data.get("mesh1.png");
+	var mesh2 = data2.get("mesh2.png");
+	//create sprite (unique sprite. use shared mesh data)
+	sprite1 = new SpriteTriangle(mesh1);
+	sprite2 = new SpriteTriangle(mesh2);
+	
+	//set the shader (must inherits GraphicsShader)
+	var shader = new AlphaGraphicsShader();
+	sprite1.shader = shader;
+	sprite2.shader = shader;
+	
+	sprite1.x = 120;
+	sprite1.y = 150;
+	
+	sprite2.x = 400;
+	sprite2.y = 150;
+	sprite2.alpha = 0.5;
+	
+	//add to the display list
+	renderer.addChild(sprite);
+	renderer.addChild(sprite2);
+	
+	//render
+	renderer.update();

@@ -2,8 +2,7 @@ package atlasTriangle;
 
 import atlasTriangle.parser.Mesh;
 import openfl.Vector;
-import openfl.display.Shader;
-import atlasTriangle.shaders.AlphaGraphicsShader;
+import openfl.display.GraphicsShader;
 
 /**
  * ...
@@ -17,7 +16,7 @@ class SpriteTriangle extends Mesh
 	@:isVar public var x(default, set):Float;
 	@:isVar public var y(default, set):Float;
 	@:isVar public var alpha(default, set):Float;
-	@:isVar public var shader(default, set):AlphaGraphicsShader;
+	@:isVar public var shader(default, set):GraphicsShader;
 	@:isVar public var rotation(default, set):Int;
 	
 	public var coor_computed:Vector<Float>;
@@ -64,7 +63,7 @@ class SpriteTriangle extends Mesh
 		return _alpha;
 	}
 	
-	public function set_shader(_shader:AlphaGraphicsShader):AlphaGraphicsShader
+	public function set_shader(_shader:GraphicsShader):GraphicsShader
 	{
 		if (shader != _shader)
 			isDirty = true;

@@ -1,11 +1,11 @@
 package atlasTriangle.renderer;
 import atlasTriangle.SpriteTriangle;
 import haxe.ds.StringMap;
+import lime.utils.Log;
 import openfl.Vector;
 import openfl.display.BitmapData;
-import openfl.display.Shader;
+import openfl.display.GraphicsShader;
 import openfl.display.Sprite;
-import atlasTriangle.shaders.AlphaGraphicsShader;
 
 /**
  * ...
@@ -24,7 +24,9 @@ class Renderer
 	var _canvas:Sprite;
 	
 	var _lastBitmap:String;
-	var _lastShader:AlphaGraphicsShader;
+	var _lastShader:GraphicsShader;
+	
+	var _drawCall:Int = 0;
 	
 	public var isDirty:Bool;
 	
@@ -45,10 +47,12 @@ class Renderer
 	{
 		if (isDirty)
 		{
+			_drawCall = 0;
 			cleanBuffers();
 						
 			_lastBitmap = "";
 			_lastShader = null;
+			var _render:Bool;
 			var _current:SpriteTriangle;
 			var _len = 0;
 			var _len2 = 0;
@@ -58,20 +62,35 @@ class Renderer
 			{
 				_current = _children[i];
 				_current.compute();
+				_render = false;
 				
 				if (_current.textureID != _lastBitmap) {
 					if (_lastBitmap != "")
 					{
-						_lastShader = _current.shader;
-						render(_lastBitmap, _current.shader);
-						_lastBitmap = _current.textureID;
-						_len = 0;
-						_len2 = 0;
-						_len3 = 0;
-						cleanBuffers();
+						_render = true;
+						
 					}else {
 						_lastBitmap = _current.textureID;
 					}
+				}
+				if (_current.shader != _lastShader){
+					if (_lastShader != null)
+					{
+						_render = true;
+						
+					}else {
+						_lastShader = _current.shader;
+					}
+				}
+				if (_render)
+				{
+					render(_lastBitmap, _lastShader);
+					_len = 0;
+					_len2 = 0;
+					_len3 = 0;
+					cleanBuffers();
+					_lastBitmap = _current.textureID;
+					_lastShader = _current.shader;
 				}
 				
 				//_bufferCoor = _bufferCoor.concat(_current.coor_computed);
@@ -96,25 +115,24 @@ class Renderer
 				{
 					_bufferCoor[_len + j] = _current.coor_computed[j];
 				}
-				_len += _current.coor_computed.length;
-				
-				
+				_len += _current.coor_computed.length;				
 
-				_lastShader = _current.shader;
 			}
 			
 			isDirty = false;
-			render(_lastBitmap, _lastShader);
+			
+			if(_len3 > 0)
+				render(_lastBitmap, _lastShader);
 			
 		}else {
 			//render(); ???
 		}
 		
+		Log.info('$_drawCall drawCalls');
 	}
 	
 	inline function cleanBuffers():Void
 	{
-		
 		#if flash
 		_bufferCoor.splice(0, _bufferCoor.length);
 		_bufferUV.splice(0, _bufferUV.length);
@@ -131,9 +149,10 @@ class Renderer
 		
 	}
 	
-	function render(bitmapID:String, shader:AlphaGraphicsShader):Void
+	function render(bitmapID:String, shader:GraphicsShader):Void
 	{
-			
+		trace(bitmapID, shader.glFragmentSource);
+		_drawCall++;	
 	}
 	
 	public function addChild(sprite:SpriteTriangle):Void
