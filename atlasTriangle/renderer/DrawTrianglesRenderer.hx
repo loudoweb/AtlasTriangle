@@ -1,7 +1,7 @@
 package atlasTriangle.renderer;
 import atlasTriangle.parser.AtlasTriangle;
 import openfl.display.BitmapData;
-import openfl.display.GraphicsShader;
+import atlasTriangle.shaders.GraphicsShader;
 import openfl.display.Sprite;
 
 /**
@@ -46,7 +46,7 @@ class DrawTrianglesRenderer extends Renderer
 		#else
 		shader.bitmap.input = bitmaps.get(bitmapID);
 		//shader.alpha.value = _bufferAlpha;
-		shader.data.alpha.value = _bufferAlpha;
+		shader.triangle_Alpha.value = _bufferAlpha;
 		_canvas.graphics.beginShaderFill(shader, null);
 		#end
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);

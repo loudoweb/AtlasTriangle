@@ -35,7 +35,8 @@ With TexturePacker, use **XML (generic)** exporter and then set **Algorithm** to
 	sprite2 = new SpriteTriangle(mesh2);
 	
 	//set the shader (must inherits GraphicsShader)
-	var shader = new AlphaGraphicsShader();
+	//these lines are optional, default shader is already GraphicsShader
+	var shader = new GraphicsShader();
 	sprite1.shader = shader;
 	sprite2.shader = shader;
 	

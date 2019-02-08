@@ -2,7 +2,7 @@ package atlasTriangle;
 
 import atlasTriangle.parser.Mesh;
 import openfl.Vector;
-import openfl.display.GraphicsShader;
+import atlasTriangle.shaders.GraphicsShader;
 
 /**
  * ...
@@ -10,7 +10,7 @@ import openfl.display.GraphicsShader;
  */
 class SpriteTriangle extends Mesh
 {
-	
+	public static var DEFAULT_SHADER = new GraphicsShader();
 	
 
 	@:isVar public var x(default, set):Float;
@@ -26,11 +26,12 @@ class SpriteTriangle extends Mesh
 	
 	public function new(mesh:Mesh) 
 	{
-		super(mesh.indices.copy(), mesh.uv.copy(), mesh.coordinates.copy(), mesh.textureID);
+		super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID);
 		coor_computed = new Vector<Float>();
 		x = 0;
 		y = 0;
 		alpha = 1;
+		shader = DEFAULT_SHADER;
 	}
 	
 	public function set_x(_x:Float):Float

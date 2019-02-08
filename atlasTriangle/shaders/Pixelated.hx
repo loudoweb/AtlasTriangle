@@ -1,6 +1,6 @@
 package atlasTriangle.shaders;
 
-import openfl.display.GraphicsShader;
+import atlasTriangle.shaders.GraphicsShader;
 
 /**
  * @author Agnius Vasiliauskas
@@ -8,27 +8,12 @@ import openfl.display.GraphicsShader;
  */
 class Pixelated extends GraphicsShader
 {
-	@:glVertexSource(
-		"#pragma header
-		attribute float alpha;
-		varying float alphav;
-		
-		void main(void) {
-			
-			alphav = alpha;
-			#pragma body
-			
-		}"
-	)
 	
 	@:glFragmentSource(
 		"#pragma header
-		varying float alphav;
 		const float pixelization = 8192.;//higher is smaller pixels
 		
 		void main(void) {
-			
-			#pragma body
 			
 			float dx = 15.*(1. / pixelization);
 			float dy = 10.*(1. / pixelization);
@@ -37,6 +22,7 @@ class Pixelated extends GraphicsShader
 							   dy * floor(openfl_TextureCoordv.y / dy));
 							   
 			gl_FragColor = texture2D(bitmap, coord);
+			gl_FragColor = gl_FragColor * openfl_Alphav;
 			
 		}"
 	)

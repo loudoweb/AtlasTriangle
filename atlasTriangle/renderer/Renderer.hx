@@ -4,7 +4,7 @@ import haxe.ds.StringMap;
 import lime.utils.Log;
 import openfl.Vector;
 import openfl.display.BitmapData;
-import openfl.display.GraphicsShader;
+import atlasTriangle.shaders.GraphicsShader;
 import openfl.display.Sprite;
 
 /**
@@ -151,7 +151,6 @@ class Renderer
 	
 	function render(bitmapID:String, shader:GraphicsShader):Void
 	{
-		trace(bitmapID, shader.glFragmentSource);
 		_drawCall++;	
 	}
 	
