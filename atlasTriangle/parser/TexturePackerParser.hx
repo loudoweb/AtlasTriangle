@@ -2,6 +2,7 @@ package atlasTriangle.parser;
 import atlasTriangle.parser.AtlasTriangle;
 import haxe.xml.Fast;
 import openfl.Vector;
+import openfl.geom.Rectangle;
 
 typedef TexturePackerPolygon = {
   var frames:Array<Sprite>;
@@ -71,7 +72,9 @@ class TexturePackerParser extends AtlasTriangle
 					index++;
 				}
 			 */
-			t.add(sprite.att.n, indices, uv, vertices);
+			t.add(sprite.att.n, indices, uv, vertices, 
+					Std.parseInt(sprite.att.oW), Std.parseInt(sprite.att.oH), 
+					new Rectangle(Std.parseInt(sprite.att.oX), Std.parseInt(sprite.att.oY), Std.parseInt(sprite.att.w), Std.parseInt(sprite.att.h)));
 		}
 		return t;
 	}
@@ -123,7 +126,7 @@ class TexturePackerParser extends AtlasTriangle
 				}
 			}
 			
-			t.add(mesh.filename, indices, uv, vertices);
+			t.add(mesh.filename, indices, uv, vertices, mesh.frame.w, mesh.frame.h, new Rectangle(mesh.frame.x, mesh.frame.y, mesh.frame.w, mesh.frame.h) );
 		}
 		
 		return t;

@@ -10,13 +10,20 @@ import openfl.display.Sprite;
  */
 class DrawTrianglesRenderer extends Renderer
 {
-
-	public function new(canvas:Sprite) 
+	#if triangle_debug
+	var _debug:Sprite;
+	#end
+	
+	public function new(canvas:Sprite, debug:Sprite = null) 
 	{
 		super(canvas);
+		
+		#if triangle_debug
+		_debug = debug;
+		#end
 	}
 	
-	override public function update():Void 
+	override public function update(deltaTime:Int):Void 
 	{
 		isDirty = true;//TODO remove
 		
@@ -27,7 +34,7 @@ class DrawTrianglesRenderer extends Renderer
 			_canvas.graphics.clear();
 		}
 		
-		super.update();
+		super.update(deltaTime);
 		
 		if (_wasDirty)
 		{
@@ -50,6 +57,12 @@ class DrawTrianglesRenderer extends Renderer
 		_canvas.graphics.beginShaderFill(shader, null);
 		#end
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
+		
+		#if triangle_debug
+		//TODO
+		_debug.graphics.lineStyle(2, 0xff0000, 0.7);
+		_debug.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
+		#end
 		
 	}
 	

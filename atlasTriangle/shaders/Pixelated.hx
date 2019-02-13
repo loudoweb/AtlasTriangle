@@ -11,7 +11,7 @@ class Pixelated extends GraphicsShader
 	
 	@:glFragmentSource(
 		"#pragma header
-		const float pixelization = 8192.;//higher is smaller pixels
+		uniform float pixelization;
 		
 		void main(void) {
 			
@@ -27,8 +27,9 @@ class Pixelated extends GraphicsShader
 		}"
 	)
 	
-	public function new()
+	public function new(pixelization:Float = 8192.0)
 	{
 		super();
+		data.pixelization.value = [pixelization];//higher is smaller pixels
 	}
 }

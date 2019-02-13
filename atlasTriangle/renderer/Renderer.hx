@@ -43,7 +43,7 @@ class Renderer
 		bitmaps = new StringMap<BitmapData>();
 	}
 	
-	public function update():Void
+	public function update(deltaTime:Int):Void
 	{
 		if (isDirty)
 		{
@@ -57,11 +57,11 @@ class Renderer
 			var _len = 0;
 			var _len2 = 0;
 			var _len3 = 0;
-			
+
 			for (i in 0..._children.length)
 			{
 				_current = _children[i];
-				_current.compute();
+				_current.update(deltaTime);
 				_render = false;
 				
 				if (_current.textureID != _lastBitmap) {

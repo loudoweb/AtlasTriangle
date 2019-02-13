@@ -3,9 +3,10 @@ package atlasTriangle;
 import atlasTriangle.parser.Mesh;
 import openfl.Vector;
 import atlasTriangle.shaders.GraphicsShader;
+import openfl.geom.Point;
 
 /**
- * ...
+ * A SpriteTriangle is made of a shared mesh but have unique x, y, alpha...on screen
  * @author loudo
  */
 class SpriteTriangle extends Mesh
@@ -18,19 +19,26 @@ class SpriteTriangle extends Mesh
 	@:isVar public var alpha(default, set):Float;
 	@:isVar public var shader(default, set):GraphicsShader;
 	@:isVar public var rotation(default, set):Int;
+	@:isVar public var center(default, set):Point;
+	@:isVar public var pivot(default, set):Point;
 	
 	public var coor_computed:Vector<Float>;
 	public var isDirty:Bool;
 	
-	//TODO color, blend, shader
+	public var elapsedTime:Int;
 	
-	public function new(mesh:Mesh) 
+	//TODO color, blend, rotation
+	
+	public function new(mesh:Mesh, center:Point = null, pivot:Point = null) 
 	{
 		super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID);
+		this.x = 0;
+		this.y = 0;
+		this.alpha = 1;
+		this.center = center == null ? new Point() : center;
+		this.pivot = pivot == null ? new Point() : pivot;
+		elapsedTime = 0;
 		coor_computed = new Vector<Float>();
-		x = 0;
-		y = 0;
-		alpha = 1;
 		shader = DEFAULT_SHADER;
 	}
 	
@@ -84,6 +92,38 @@ class SpriteTriangle extends Mesh
 		return _rotation;
 	}
 	
+	public function set_center(_center:Point):Point
+	{
+		if (center != _center)
+			isDirty = true;
+		
+		center = _center;
+
+		return _center;
+	}
+	
+	public function set_pivot(_pivot:Point):Point
+	{
+		if (pivot != _pivot)
+			isDirty = true;
+		
+		pivot = _pivot;
+
+		return _pivot;
+	}
+	
+	public function update(deltaTime:Int):Void
+	{
+		
+		advance(deltaTime);
+		compute();
+	}
+	
+	function advance(deltaTime:Int):Void
+	{
+		elapsedTime += deltaTime;
+	}
+	
 	public function compute():Vector<Float>
 	{
 		if (isDirty)
@@ -91,9 +131,9 @@ class SpriteTriangle extends Mesh
 			for (i in 0...coordinates.length)
 			{
 				if(i % 2 == 0)
-					coor_computed[i] = coordinates[i] + x;
+					coor_computed[i] = coordinates[i] + x - center.x;
 				else
-					coor_computed[i] = coordinates[i] + y;
+					coor_computed[i] = coordinates[i] + y - center.y;
 			}
 			isDirty = false;
 		}

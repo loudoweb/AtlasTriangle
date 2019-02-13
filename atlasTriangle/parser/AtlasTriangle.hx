@@ -1,5 +1,6 @@
 package atlasTriangle.parser;
 import openfl.Vector;
+import openfl.geom.Rectangle;
 using StringTools;
 
 /**
@@ -25,9 +26,9 @@ class AtlasTriangle
 	 * @param	uv
 	 * @param	coordinates
 	 */
-	public function add(name:String, indices:Vector<Int>, uv:Vector<Float>, coordinates:Vector<Float>)
+	public function add(name:String, indices:Vector<Int>, uv:Vector<Float>, coordinates:Vector<Float>, oW:Int, oH:Int, bounds:Rectangle = null)
 	{
-		meshes.set(name, new Mesh(indices, uv, coordinates, textureID));
+		meshes.set(name, new Mesh(indices, uv, coordinates, textureID, oW, oH, bounds));
 	}
 	/**
 	 * Get data of a Sprite
