@@ -32,6 +32,9 @@ class DrawTrianglesRenderer extends Renderer
 		if (_wasDirty)
 		{
 			_canvas.graphics.clear();
+			#if triangle_debug
+			_debug.graphics.clear();
+			#end
 		}
 		
 		super.update(deltaTime);
@@ -39,6 +42,9 @@ class DrawTrianglesRenderer extends Renderer
 		if (_wasDirty)
 		{
 			_canvas.graphics.endFill();
+			#if triangle_debug
+			_debug.graphics.endFill();
+			#end
 		}
 	}
 	
@@ -61,7 +67,7 @@ class DrawTrianglesRenderer extends Renderer
 		#if triangle_debug
 		//TODO
 		_debug.graphics.lineStyle(2, 0xff0000, 0.7);
-		_debug.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
+		_debug.graphics.drawTriangles(_bufferCoor.copy(), _bufferIndices.copy(), _bufferUV.copy());
 		#end
 		
 	}

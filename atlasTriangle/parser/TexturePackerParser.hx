@@ -11,6 +11,8 @@ typedef TexturePackerPolygon = {
 typedef Meta = {
 	var image:String;
 	var size:Size;
+	var format:String;
+	var scale:Float;
 }
 typedef Size = {
 	var w:Int;
@@ -21,6 +23,8 @@ typedef Sprite = {
 	var frame:Frame;
 	var rotated:Bool;
 	var trimmed:Bool;
+	var spriteSourceSize:Frame;
+	var sourceSize:Size;
 	var pivot:Pivot;
 	var vertices:Array<Array<Float>>;
 	var verticesUV:Array<Array<Float>>;
@@ -126,7 +130,7 @@ class TexturePackerParser extends AtlasTriangle
 				}
 			}
 			
-			t.add(mesh.filename, indices, uv, vertices, mesh.frame.w, mesh.frame.h, new Rectangle(mesh.frame.x, mesh.frame.y, mesh.frame.w, mesh.frame.h) );
+			t.add(mesh.filename, indices, uv, vertices, mesh.sourceSize.w, mesh.sourceSize.h, new Rectangle(mesh.spriteSourceSize.x, mesh.spriteSourceSize.y, mesh.spriteSourceSize.w, mesh.spriteSourceSize.h) );
 		}
 		
 		return t;

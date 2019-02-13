@@ -29,9 +29,7 @@ class ClipTriangle extends SpriteTriangle
 		super.advance(deltaTime);
 		
 		var frame =  Math.floor((elapsedTime / 1000) * fps) % _meshes.length;
-		
-		trace(frame, _meshes.length);
-		
+				
 		if (_lastFrame != frame)
 		{
 			isDirty = true;
