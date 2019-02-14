@@ -6,6 +6,9 @@ import openfl.Vector;
 import openfl.display.BitmapData;
 import atlasTriangle.shaders.GraphicsShader;
 import openfl.display.Sprite;
+#if gl_stats
+import openfl._internal.renderer.context3D.stats.Context3DStats;
+#end
 
 /**
  * ...
@@ -128,7 +131,11 @@ class Renderer
 			//render(); ???
 		}
 		
-		Log.info('$_drawCall drawCalls');
+	#if gl_stats
+	Log.info('$_drawCall drawCalls (total ${Context3DStats.totalDrawCalls()})');//must compile with -Dgl_stats
+	#else
+	Log.info('$_drawCall drawCalls');
+	#end
 	}
 	
 	inline function cleanBuffers():Void
