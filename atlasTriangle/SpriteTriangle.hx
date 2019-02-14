@@ -3,11 +3,14 @@ package atlasTriangle;
 import atlasTriangle.parser.Mesh;
 import openfl.Vector;
 import atlasTriangle.shaders.GraphicsShader;
+import openfl.geom.ColorTransform;
+import openfl.geom.Matrix;
 import openfl.geom.Point;
 
 /**
  * A SpriteTriangle is made of a shared mesh but have unique x, y, alpha...on screen
  * @author loudo
+ * @author some code from openfl
  */
 class SpriteTriangle extends Mesh
 {
@@ -18,16 +21,26 @@ class SpriteTriangle extends Mesh
 	@:isVar public var y(default, set):Float;
 	@:isVar public var alpha(default, set):Float;
 	@:isVar public var shader(default, set):GraphicsShader;
-	@:isVar public var rotation(default, set):Int;
 	@:isVar public var center(default, set):Point;
-	@:isVar public var pivot(default, set):Point;
+	@:isVar public var matrix(default, set):Matrix;
+	@:isVar public var colorTransform (default, set):ColorTransform;
+	public var rotation(get, set):Null<Float>;
+	public var scaleX(get, set):Null<Float>;
+	public var scaleY(get, set):Null<Float>;
 	
 	public var coor_computed:Vector<Float>;
 	public var isDirty:Bool;
 	
 	public var elapsedTime:Int;
 	
+	private var __rotationCosine:Float;
+	private var __rotationSine:Float;
+	private var __rotation:Null<Float>;
+	private var __scaleX:Null<Float>;
+	private var __scaleY:Null<Float>;
+	
 	//TODO color, blend, rotation
+	//TODO pool
 	
 	public function new(mesh:Mesh, center:Point = null, pivot:Point = null) 
 	{
@@ -36,80 +49,236 @@ class SpriteTriangle extends Mesh
 		this.y = 0;
 		this.alpha = 1;
 		this.center = center == null ? new Point() : center;
-		this.pivot = pivot == null ? new Point() : pivot;
+		this.matrix = new Matrix();
 		elapsedTime = 0;
 		coor_computed = new Vector<Float>();
 		shader = DEFAULT_SHADER;
 	}
 	
-	public function set_x(_x:Float):Float
+	public function set_x(value:Float):Float
 	{
-		if (x != _x)
+		if (x != value)
+		{
 			isDirty = true;
+			x = value;
+		}
+
+		return value;
+	}
+	
+	public function set_y(value:Float):Float
+	{
+		if (y != value)
+		{
+			isDirty = true;
+			y = value;
+		}
+
+		return value;
+	}
+	
+	public function set_alpha(value:Float):Float
+	{
+		if (alpha != value)
+		{
+			isDirty = true;
+			alpha = value;
+		}
+		
+		return value;
+	}
+	
+	public function set_shader(value:GraphicsShader):GraphicsShader
+	{
+		if (shader != value)
+		{
+			isDirty = true;
+			shader = value;
+		}
+
+		return value;
+	}
+	
+	private function get_rotation ():Float {
+		
+		if (__rotation == null) {
 			
-		x = _x;
-
-		return _x;
+			if (matrix.b == 0 && matrix.c == 0) {
+				
+				__rotation = 0;
+				__rotationSine = 0;
+				__rotationCosine = 1;
+				
+			} else {
+				
+				var radians = Math.atan2 (matrix.d, matrix.c) - (Math.PI / 2);
+				
+				__rotation = radians * (180 / Math.PI);
+				__rotationSine = Math.sin (radians);
+				__rotationCosine = Math.cos (radians);
+				
+			}
+			
+		}
+		
+		return __rotation;
+		
 	}
 	
-	public function set_y(_y:Float):Float
+	public function set_rotation(value:Float):Float
 	{
-		if (y != _y)
+		if (__rotation != value)
+		{
 			isDirty = true;
-		
-		y = _y;
+			__rotation = value;
 
-		return _y;
+			var radians = value * (Math.PI / 180);
+			__rotationSine = Math.sin (radians);
+			__rotationCosine = Math.cos (radians);
+			
+			var __scaleX = this.scaleX;
+			var __scaleY = this.scaleY;
+			
+			__matrix.a = __rotationCosine * __scaleX;
+			__matrix.b = __rotationSine * __scaleX;
+			__matrix.c = -__rotationSine * __scaleY;
+			__matrix.d = __rotationCosine * __scaleY;
+			
+		}
+
+		return value;
 	}
 	
-	public function set_alpha(_alpha:Float):Float
-	{
-		if (alpha != _alpha)
-			isDirty = true;
+	private function get_scaleX ():Float {
 		
-		alpha = _alpha;
+		if (__scaleX == null) {
+			
+			if (matrix.b == 0) {
+				
+				__scaleX = matrix.a;
+				
+			} else {
+				
+				__scaleX = Math.sqrt (matrix.a * matrix.a + matrix.b * matrix.b);
+				
+			}
+			
+		}
 		
-		return _alpha;
+		return __scaleX;
+		
 	}
 	
-	public function set_shader(_shader:GraphicsShader):GraphicsShader
+	public function set_scaleX(value:Float):Float
 	{
-		if (shader != _shader)
+		if (__scaleX != value)
+		{
 			isDirty = true;
-		
-		shader = _shader;
+			__scaleX = value;
+			
+			if (__matrix.b == 0) {
+				
+				__matrix.a = value;
+				
+			} else {
+				
+				var rotation = this.rotation;
+				
+				var a = __rotationCosine * value;
+				var b = __rotationSine * value;
+				
+				__matrix.a = a;
+				__matrix.b = b;
+				
+			}
+		}
 
-		return _shader;
+		return value;
 	}
 	
-	public function set_rotation(_rotation:Int):Int
-	{
-		if (rotation != _rotation)
-			isDirty = true;
+	private function get_scaleY ():Float {
 		
-		rotation = _rotation;
-
-		return _rotation;
+		if (__scaleY == null) {
+			
+			if (matrix.c == 0) {
+				
+				__scaleY = matrix.d;
+				
+			} else {
+				
+				__scaleY = Math.sqrt (matrix.c * matrix.c + matrix.d * matrix.d);
+				
+			}
+			
+		}
+		
+		return __scaleY;
+		
 	}
 	
-	public function set_center(_center:Point):Point
+	public function set_scaleY(value:Float):Float
 	{
-		if (center != _center)
+		if (__scaleY != value)
+		{
 			isDirty = true;
-		
-		center = _center;
+			__scaleY = value;
+			
+			if (__matrix.c == 0) {
+				
+				__matrix.d = value;
+				
+			} else {
+				
+				var rotation = this.rotation;
+				
+				var c = -__rotationSine * value;
+				var d = __rotationCosine * value;
+				
+				__matrix.c = c;
+				__matrix.d = d;
+				
+			}
+		}
 
-		return _center;
+		return value;
 	}
 	
-	public function set_pivot(_pivot:Point):Point
+	public function set_matrix(value:Matrix):Matrix
 	{
-		if (pivot != _pivot)
+		if (matrix != value)
+		{
+			matrix = value;
+			__rotation = null;
+			__scaleX = null;
+			__scaleY = null;
 			isDirty = true;
+		}
 		
-		pivot = _pivot;
+		
 
-		return _pivot;
+		return value;
+	}
+	
+	public function set_center(value:Point):Point
+	{
+		if (center != value)
+		{
+			isDirty = true;
+			center = value;
+		}
+
+		return value;
+	}
+	
+	public function set_colorTransform(value:ColorTransform):ColorTransform
+	{
+		if (colorTransform != value)
+		{
+			isDirty = true;
+			colorTransform = value;
+		}
+
+		return value;
 	}
 	
 	public function update(deltaTime:Int):Void
