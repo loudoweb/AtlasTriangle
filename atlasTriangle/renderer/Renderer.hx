@@ -12,6 +12,7 @@ import openfl._internal.renderer.context3D.stats.Context3DStats;
 #end
 
 @:access(openfl.geom.Matrix)
+@:access(openfl.display.DisplayObject)
 
 /**
  * ...
@@ -26,6 +27,8 @@ class Renderer
 	var _bufferUV:Vector<Float>;
 	var _bufferIndices:Vector<Int>;
 	var _bufferAlpha:Array<Float>;
+	var _bufferColorMultiplier:Array<Float>;
+	var _bufferColorOffset:Array<Float>;
 	
 	var _canvas:Sprite;
 	
@@ -46,6 +49,8 @@ class Renderer
 		_bufferUV = new Vector<Float>();
 		_bufferIndices = new Vector<Int>();
 		_bufferAlpha = [];
+		_bufferColorMultiplier = [];
+		_bufferColorOffset = [];
 		bitmaps = new StringMap<BitmapData>();
 	}
 	
@@ -65,7 +70,9 @@ class Renderer
 			var _len3 = 0;
 			var triangleTransform = Matrix.__pool.get ();
 			
-			
+			var defaultColorTransform = _canvas.__worldColorTransform;
+			var hasColorTransform = true;
+			var currentColorTransform = null;
 
 			for (i in 0..._children.length)
 			{
@@ -100,7 +107,7 @@ class Renderer
 				}
 				if (_render)
 				{
-					render(_lastBitmap, _lastShader);
+					render(_lastBitmap, _lastShader, hasColorTransform);
 					_len = 0;
 					_len2 = 0;
 					_len3 = 0;
@@ -120,11 +127,30 @@ class Renderer
 				}
 				_len2 += _current.uv.length;
 				
+				
+				if (hasColorTransform)
+				{
+					currentColorTransform = _current.colorTransform != null ? _current.colorTransform : defaultColorTransform;
+				}
+				
 				for (j in 0..._current.indices.length)
 				{
 					_bufferAlpha[_len3 + j] = _current.alpha;
 					_bufferIndices[_len3 + j] = _current.indices[j] + Std.int(_len / 2);
+					
+					if (hasColorTransform)
+					{
+						_bufferColorMultiplier[(_len3 + j) * 4] = currentColorTransform.redMultiplier;
+						_bufferColorMultiplier[(_len3 + j) * 4 + 1] = currentColorTransform.greenMultiplier;
+						_bufferColorMultiplier[(_len3 + j) * 4 + 2] = currentColorTransform.blueMultiplier;
+						_bufferColorMultiplier[(_len3 + j) * 4 + 3] = currentColorTransform.alphaMultiplier;
+						_bufferColorOffset[(_len3 + j) * 4] = currentColorTransform.redOffset;
+						_bufferColorOffset[(_len3 + j) * 4 + 1] = currentColorTransform.greenOffset;
+						_bufferColorOffset[(_len3 + j) * 4 + 2] = currentColorTransform.blueOffset;
+						_bufferColorOffset[(_len3 + j) * 4 + 3] = currentColorTransform.alphaOffset;
+					}
 				}
+				trace(_bufferColorMultiplier.length, _bufferAlpha.length);
 				_len3 += _current.indices.length;
 				
 				for (j in 0..._current.coordinates.length)
@@ -141,7 +167,7 @@ class Renderer
 			isDirty = false;
 			
 			if(_len3 > 0)
-				render(_lastBitmap, _lastShader);
+				render(_lastBitmap, _lastShader, hasColorTransform);
 				
 			Matrix.__pool.release (triangleTransform);
 			
@@ -165,6 +191,8 @@ class Renderer
 		_bufferUV.splice(0, _bufferUV.length);
 		_bufferIndices.splice(0, _bufferIndices.length);
 		_bufferAlpha.splice(0, _bufferAlpha.length);
+		_bufferColorMultiplier.splice(0, _bufferColorMultiplier.length);
+		_bufferColorOffset.splice(0, _bufferColorOffset.length);
 		#else
 		//don't use splice to empty the buffers, otherwise Vector sent will be overwritten before rendering
 		//TODO use pool
@@ -172,11 +200,13 @@ class Renderer
 		_bufferUV = new Vector<Float>();
 		_bufferIndices = new Vector<Int>();
 		_bufferAlpha = [];
+		_bufferColorMultiplier = [];
+		_bufferColorOffset = [];
 		#end
 		
 	}
 	
-	function render(bitmapID:String, shader:GraphicsShader):Void
+	function render(bitmapID:String, shader:GraphicsShader, hasColor:Bool):Void
 	{
 		_drawCall++;	
 	}

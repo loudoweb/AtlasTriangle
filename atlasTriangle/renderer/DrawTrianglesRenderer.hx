@@ -48,19 +48,24 @@ class DrawTrianglesRenderer extends Renderer
 		}
 	}
 	
-	override function render(bitmapID:String, shader:GraphicsShader):Void 
+	override function render(bitmapID:String, shader:GraphicsShader, hasColor:Bool):Void 
 	{
-		super.render(bitmapID, shader);
-		trace(_bufferCoor, "\n", _bufferIndices, "\n", _bufferUV, "\n", _bufferAlpha);
-		
+		super.render(bitmapID, shader, hasColor);
+		//trace(_bufferCoor, "\n", _bufferIndices, "\n", _bufferUV, "\n", _bufferAlpha);
+		//trace(_bufferColorMultiplier, "\n", _bufferColorOffset);
 		#if flash
 		//TODO pxb for the flash shader??
-		//for now alpha is not supported on flash
+		//for now alpha, shader and colortransform are not supported on flash
 		_canvas.graphics.beginBitmapFill(bitmaps.get(bitmapID), null, false, true);
 		#else
 		shader.bitmap.input = bitmaps.get(bitmapID);
-		//shader.alpha.value = _bufferAlpha;
 		shader.triangle_Alpha.value = _bufferAlpha;
+		shader.triangle_HasColorTransform.value = [hasColor];
+		if (hasColor)
+		{
+			shader.triangle_ColorMultiplier.value = _bufferColorMultiplier;
+			shader.triangle_ColorOffset.value = _bufferColorOffset;
+		}
 		_canvas.graphics.beginShaderFill(shader, null);
 		#end
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);

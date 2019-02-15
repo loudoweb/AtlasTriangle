@@ -10,14 +10,15 @@ import openfl.display.Shader;
 /**
  * cloned from openfl.display.GraphicsShader
  * This cloned shader allow us more possibilities (attributes are not overwritten)
+ * changed: name of attributes from openfl_ prefix to triangle_
  * @author jgranick
  */
 class GraphicsShader extends Shader
 {
 	@:glVertexHeader(
 		"attribute float triangle_Alpha;
-		attribute vec4 openfl_ColorMultiplier;
-		attribute vec4 openfl_ColorOffset;
+		attribute vec4 triangle_ColorMultiplier;
+		attribute vec4 triangle_ColorOffset;
 		attribute vec4 openfl_Position;
 		attribute vec2 openfl_TextureCoord;
 		
@@ -27,16 +28,16 @@ class GraphicsShader extends Shader
 		varying vec2 openfl_TextureCoordv;
 		
 		uniform mat4 openfl_Matrix;
-		uniform bool openfl_HasColorTransform;
+		uniform bool triangle_HasColorTransform;
 		uniform vec2 openfl_TextureSize;")
 	@:glVertexBody(
 		"openfl_Alphav = triangle_Alpha;
 		openfl_TextureCoordv = openfl_TextureCoord;
 		
-		if (openfl_HasColorTransform) {
+		if (triangle_HasColorTransform) {
 			
-			openfl_ColorMultiplierv = openfl_ColorMultiplier;
-			openfl_ColorOffsetv = openfl_ColorOffset / 255.0;
+			openfl_ColorMultiplierv = triangle_ColorMultiplier;
+			openfl_ColorOffsetv = triangle_ColorOffset / 255.0;
 			
 		}
 		
@@ -55,7 +56,7 @@ class GraphicsShader extends Shader
 		varying vec4 openfl_ColorOffsetv;
 		varying vec2 openfl_TextureCoordv;
 		
-		uniform bool openfl_HasColorTransform;
+		uniform bool triangle_HasColorTransform;
 		uniform vec2 openfl_TextureSize;
 		uniform sampler2D bitmap; ")
 		
@@ -66,7 +67,7 @@ class GraphicsShader extends Shader
 			
 			gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
 			
-		} else if (openfl_HasColorTransform) {
+		} else if (triangle_HasColorTransform) {
 			
 			color = vec4 (color.rgb / color.a, color.a);
 			
@@ -74,7 +75,7 @@ class GraphicsShader extends Shader
 			colorMultiplier[0][0] = openfl_ColorMultiplierv.x;
 			colorMultiplier[1][1] = openfl_ColorMultiplierv.y;
 			colorMultiplier[2][2] = openfl_ColorMultiplierv.z;
-			colorMultiplier[3][3] = 1.0; // openfl_ColorMultiplierv.w;
+			colorMultiplier[3][3] = openfl_ColorMultiplierv.w;
 			
 			color = clamp (openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
 			
