@@ -5,16 +5,22 @@ Allow to use atlas packed with triangles with such tools as [SpriteUV2](https://
 Openfl Renderer using graphics.drawTriangles (gpu accelerated)
 I'll try to make a renderer using context3d.drawTriangles or directly gl later if it can improve performance or reduce memory footprint
 
-#features
+# features
  * Batching (one drawcall per bitmapdata or shader instance)
  * rotation/scale using matrix or not
  * alpha
  * shader
+	* GraphicsShader (default : alpha and colorTransform attributes)
+	* HueSaturationShader (hue and saturation uniform). You could use this shader to use uniform instead of attributes to change the color of a whole set of triangles
+	* GrayScale
+	* Invert (invert colors)
+	* Pixelated (pixelize the image)
+	* Hexagonate (like Pixelated but with hexagonal 'pixels')
  * colorTransform
  * center (for position and rotation)
  * clip (set of mesh that updates depending of fps set)
  
-#TODO
+# TODO
  * group
 
 
