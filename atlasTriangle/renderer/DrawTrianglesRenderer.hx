@@ -51,6 +51,7 @@ class DrawTrianglesRenderer extends Renderer
 	override function render(bitmapID:String, shader:GraphicsShader):Void 
 	{
 		super.render(bitmapID, shader);
+		trace(_bufferCoor, "\n", _bufferIndices, "\n", _bufferUV, "\n", _bufferAlpha);
 		
 		#if flash
 		//TODO pxb for the flash shader??

@@ -6,9 +6,12 @@ import openfl.Vector;
 import openfl.display.BitmapData;
 import atlasTriangle.shaders.GraphicsShader;
 import openfl.display.Sprite;
+import openfl.geom.Matrix;
 #if gl_stats
 import openfl._internal.renderer.context3D.stats.Context3DStats;
 #end
+
+@:access(openfl.geom.Matrix)
 
 /**
  * ...
@@ -60,12 +63,22 @@ class Renderer
 			var _len = 0;
 			var _len2 = 0;
 			var _len3 = 0;
+			var triangleTransform = Matrix.__pool.get ();
+			
+			
 
 			for (i in 0..._children.length)
 			{
+				_render = false;
+				
 				_current = _children[i];
 				_current.update(deltaTime);
-				_render = false;
+				
+				triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
+				triangleTransform.concat (_current.matrix);
+				//triangleTransform.concat (parentTransform);
+				triangleTransform.tx = Math.round (triangleTransform.tx);
+				triangleTransform.ty = Math.round (triangleTransform.ty);
 				
 				if (_current.textureID != _lastBitmap) {
 					if (_lastBitmap != "")
@@ -114,11 +127,14 @@ class Renderer
 				}
 				_len3 += _current.indices.length;
 				
-				for (j in 0..._current.coor_computed.length)
+				for (j in 0..._current.coordinates.length)
 				{
-					_bufferCoor[_len + j] = _current.coor_computed[j];
+					if(j % 2 == 0)
+						_bufferCoor[_len + j] = triangleTransform.__transformX(_current.coordinates[j], _current.coordinates[j + 1]);
+					else
+						_bufferCoor[_len + j] = triangleTransform.__transformY(_current.coordinates[j - 1], _current.coordinates[j]);
 				}
-				_len += _current.coor_computed.length;				
+				_len += _current.coordinates.length;				
 
 			}
 			
@@ -126,16 +142,20 @@ class Renderer
 			
 			if(_len3 > 0)
 				render(_lastBitmap, _lastShader);
+				
+			Matrix.__pool.release (triangleTransform);
 			
 		}else {
 			//render(); ???
 		}
 		
-	#if gl_stats
-	Log.info('$_drawCall drawCalls (total ${Context3DStats.totalDrawCalls()})');//must compile with -Dgl_stats
-	#else
-	Log.info('$_drawCall drawCalls');
-	#end
+		
+		
+		#if gl_stats
+		Log.info('$_drawCall drawCalls (total ${Context3DStats.totalDrawCalls()})');//must compile with -Dgl_stats
+		#else
+		Log.info('$_drawCall drawCalls');
+		#end
 	}
 	
 	inline function cleanBuffers():Void

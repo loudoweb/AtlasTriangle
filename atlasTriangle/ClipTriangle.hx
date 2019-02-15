@@ -24,9 +24,9 @@ class ClipTriangle extends SpriteTriangle
 		super(_meshes[0]);
 	}
 	
-	override public function advance(deltaTime:Int):Void
+	override public function update(deltaTime:Int):Void
 	{
-		super.advance(deltaTime);
+		super.update(deltaTime);
 		
 		var frame =  Math.floor((elapsedTime / 1000) * fps) % _meshes.length;
 				
@@ -34,10 +34,7 @@ class ClipTriangle extends SpriteTriangle
 		{
 			isDirty = true;
 			_lastFrame = frame;
-			
-			//clean
-			coor_computed.splice(0, coor_computed.length);
-			
+						
 			//update current mesh
 			var current = _meshes[frame];
 			coordinates = current.coordinates;

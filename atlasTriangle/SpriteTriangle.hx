@@ -17,8 +17,8 @@ class SpriteTriangle extends Mesh
 	public static var DEFAULT_SHADER = new GraphicsShader();
 	
 
-	@:isVar public var x(default, set):Float;
-	@:isVar public var y(default, set):Float;
+	public var x(get, set):Float;
+	public var y(get, set):Float;
 	@:isVar public var alpha(default, set):Float;
 	@:isVar public var shader(default, set):GraphicsShader;
 	@:isVar public var center(default, set):Point;
@@ -28,7 +28,6 @@ class SpriteTriangle extends Mesh
 	public var scaleX(get, set):Null<Float>;
 	public var scaleY(get, set):Null<Float>;
 	
-	public var coor_computed:Vector<Float>;
 	public var isDirty:Bool;
 	
 	public var elapsedTime:Int;
@@ -42,17 +41,20 @@ class SpriteTriangle extends Mesh
 	//TODO color, blend, rotation
 	//TODO pool
 	
-	public function new(mesh:Mesh, center:Point = null, pivot:Point = null) 
+	public function new(mesh:Mesh, center:Point = null) 
 	{
-		super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID);
-		this.x = 0;
-		this.y = 0;
-		this.alpha = 1;
-		this.center = center == null ? new Point() : center;
+		super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID, mesh.oW, mesh.oH, mesh.bounds);
 		this.matrix = new Matrix();
+		alpha = 1;
+		this.center = center == null ? new Point() : center;
+		
 		elapsedTime = 0;
-		coor_computed = new Vector<Float>();
 		shader = DEFAULT_SHADER;
+	}
+	
+	public function get_x():Float
+	{
+		return matrix.tx;
 	}
 	
 	public function set_x(value:Float):Float
@@ -60,10 +62,15 @@ class SpriteTriangle extends Mesh
 		if (x != value)
 		{
 			isDirty = true;
-			x = value;
+			matrix.tx = value;
 		}
 
 		return value;
+	}
+	
+	public function get_y():Float
+	{
+		return matrix.ty;
 	}
 	
 	public function set_y(value:Float):Float
@@ -71,7 +78,7 @@ class SpriteTriangle extends Mesh
 		if (y != value)
 		{
 			isDirty = true;
-			y = value;
+			matrix.ty = value;
 		}
 
 		return value;
@@ -139,10 +146,10 @@ class SpriteTriangle extends Mesh
 			var __scaleX = this.scaleX;
 			var __scaleY = this.scaleY;
 			
-			__matrix.a = __rotationCosine * __scaleX;
-			__matrix.b = __rotationSine * __scaleX;
-			__matrix.c = -__rotationSine * __scaleY;
-			__matrix.d = __rotationCosine * __scaleY;
+			matrix.a = __rotationCosine * __scaleX;
+			matrix.b = __rotationSine * __scaleX;
+			matrix.c = -__rotationSine * __scaleY;
+			matrix.d = __rotationCosine * __scaleY;
 			
 		}
 
@@ -176,9 +183,9 @@ class SpriteTriangle extends Mesh
 			isDirty = true;
 			__scaleX = value;
 			
-			if (__matrix.b == 0) {
+			if (matrix.b == 0) {
 				
-				__matrix.a = value;
+				matrix.a = value;
 				
 			} else {
 				
@@ -187,8 +194,8 @@ class SpriteTriangle extends Mesh
 				var a = __rotationCosine * value;
 				var b = __rotationSine * value;
 				
-				__matrix.a = a;
-				__matrix.b = b;
+				matrix.a = a;
+				matrix.b = b;
 				
 			}
 		}
@@ -223,9 +230,9 @@ class SpriteTriangle extends Mesh
 			isDirty = true;
 			__scaleY = value;
 			
-			if (__matrix.c == 0) {
+			if (matrix.c == 0) {
 				
-				__matrix.d = value;
+				matrix.d = value;
 				
 			} else {
 				
@@ -234,8 +241,8 @@ class SpriteTriangle extends Mesh
 				var c = -__rotationSine * value;
 				var d = __rotationCosine * value;
 				
-				__matrix.c = c;
-				__matrix.d = d;
+				matrix.c = c;
+				matrix.d = d;
 				
 			}
 		}
@@ -284,29 +291,7 @@ class SpriteTriangle extends Mesh
 	public function update(deltaTime:Int):Void
 	{
 		
-		advance(deltaTime);
-		compute();
-	}
-	
-	function advance(deltaTime:Int):Void
-	{
 		elapsedTime += deltaTime;
-	}
-	
-	public function compute():Vector<Float>
-	{
-		if (isDirty)
-		{
-			for (i in 0...coordinates.length)
-			{
-				if(i % 2 == 0)
-					coor_computed[i] = coordinates[i] + x - center.x;
-				else
-					coor_computed[i] = coordinates[i] + y - center.y;
-			}
-			isDirty = false;
-		}
-		return coor_computed;
 	}
 	
 }
