@@ -19,9 +19,10 @@ I'll try to make a renderer using context3d.drawTriangles or directly gl later i
  * colorTransform
  * center (for position and rotation)
  * clip (set of mesh that updates depending of fps set)
+ * group
  
 # TODO
- * group
+ * hit test
 
 
 # Usage

@@ -24,10 +24,8 @@ class DrawTrianglesRenderer extends Renderer
 	}
 	
 	override public function update(deltaTime:Int):Void 
-	{
-		isDirty = true;//TODO remove
-		
-		var _wasDirty = isDirty;
+	{		
+		var _wasDirty = _group.isDirty;
 		
 		if (_wasDirty)
 		{

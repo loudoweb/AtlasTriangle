@@ -24,6 +24,7 @@ class SpriteTriangle extends Mesh
 	@:isVar public var center(default, set):Point;
 	@:isVar public var matrix(default, set):Matrix;
 	@:isVar public var colorTransform (default, set):ColorTransform;
+	public var parent(default, null):GroupTriangle;
 	public var rotation(get, set):Null<Float>;
 	public var scaleX(get, set):Null<Float>;
 	public var scaleY(get, set):Null<Float>;
@@ -38,12 +39,16 @@ class SpriteTriangle extends Mesh
 	private var __scaleX:Null<Float>;
 	private var __scaleY:Null<Float>;
 	
-	//TODO color, blend, rotation
+	//TODO blend
 	//TODO pool
 	
 	public function new(mesh:Mesh, center:Point = null) 
 	{
-		super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID, mesh.oW, mesh.oH, mesh.bounds);
+		if (mesh != null)
+			super(mesh.indices, mesh.uv, mesh.coordinates, mesh.textureID, mesh.oW, mesh.oH, mesh.bounds);
+		else
+			super(null, null, null, "");
+		
 		this.matrix = new Matrix();
 		alpha = 1;
 		this.center = center == null ? new Point() : center;
@@ -61,8 +66,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (x != value)
 		{
-			isDirty = true;
 			matrix.tx = value;
+			__setRenderDirty();
 		}
 
 		return value;
@@ -77,8 +82,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (y != value)
 		{
-			isDirty = true;
 			matrix.ty = value;
+			__setRenderDirty();
 		}
 
 		return value;
@@ -88,8 +93,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (alpha != value)
 		{
-			isDirty = true;
 			alpha = value;
+			__setRenderDirty();
 		}
 		
 		return value;
@@ -99,8 +104,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (shader != value)
 		{
-			isDirty = true;
 			shader = value;
+			__setRenderDirty();
 		}
 
 		return value;
@@ -136,7 +141,6 @@ class SpriteTriangle extends Mesh
 	{
 		if (__rotation != value)
 		{
-			isDirty = true;
 			__rotation = value;
 
 			var radians = value * (Math.PI / 180);
@@ -151,6 +155,7 @@ class SpriteTriangle extends Mesh
 			matrix.c = -__rotationSine * __scaleY;
 			matrix.d = __rotationCosine * __scaleY;
 			
+			__setRenderDirty();
 		}
 
 		return value;
@@ -180,7 +185,6 @@ class SpriteTriangle extends Mesh
 	{
 		if (__scaleX != value)
 		{
-			isDirty = true;
 			__scaleX = value;
 			
 			if (matrix.b == 0) {
@@ -198,6 +202,7 @@ class SpriteTriangle extends Mesh
 				matrix.b = b;
 				
 			}
+			__setRenderDirty();
 		}
 
 		return value;
@@ -227,7 +232,6 @@ class SpriteTriangle extends Mesh
 	{
 		if (__scaleY != value)
 		{
-			isDirty = true;
 			__scaleY = value;
 			
 			if (matrix.c == 0) {
@@ -245,6 +249,7 @@ class SpriteTriangle extends Mesh
 				matrix.d = d;
 				
 			}
+			__setRenderDirty();
 		}
 
 		return value;
@@ -258,7 +263,7 @@ class SpriteTriangle extends Mesh
 			__rotation = null;
 			__scaleX = null;
 			__scaleY = null;
-			isDirty = true;
+			__setRenderDirty();
 		}
 		
 		
@@ -270,8 +275,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (center != value)
 		{
-			isDirty = true;
 			center = value;
+			__setRenderDirty();
 		}
 
 		return value;
@@ -281,8 +286,8 @@ class SpriteTriangle extends Mesh
 	{
 		if (colorTransform != value)
 		{
-			isDirty = true;
 			colorTransform = value;
+			__setRenderDirty();
 		}
 
 		return value;
@@ -292,6 +297,20 @@ class SpriteTriangle extends Mesh
 	{
 		
 		elapsedTime += deltaTime;
+		isDirty = false;
+	}
+	
+	@:noCompletion private function __setRenderDirty():Void
+	{
+		if (!isDirty)
+		{
+			isDirty = true;
+
+			if (parent != null)
+			{
+				parent.__setRenderDirty();
+			}
+		}
 	}
 	
 }
