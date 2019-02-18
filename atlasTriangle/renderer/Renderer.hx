@@ -56,15 +56,39 @@ class Renderer
 	
 	public function update(deltaTime:Int):Void
 	{
+		
+		advance(deltaTime);
+		prepareBuffers();
+		
+	}
+	
+	inline function advance(deltaTime:Int):Void
+	{
+		var _current:SpriteTriangle;
+		
+		for (i in 0..._children.length)
+		{
+			_current = _children[i];
+			_current.update(deltaTime);
+			if (_current.isDirty)
+			{
+				isDirty = true;
+			}
+		}
+	}
+	
+	inline function prepareBuffers():Void
+	{
 		if (isDirty)
 		{
-			_drawCall = 0;
 			cleanBuffers();
+			
+			var _current:SpriteTriangle;
 						
 			_lastBitmap = "";
 			_lastShader = null;
 			var _render:Bool;
-			var _current:SpriteTriangle;
+			
 			var _len = 0;
 			var _len2 = 0;
 			var _len3 = 0;
@@ -79,7 +103,7 @@ class Renderer
 				_render = false;
 				
 				_current = _children[i];
-				_current.update(deltaTime);
+				_current.isDirty = false;
 				
 				triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
 				triangleTransform.concat (_current.matrix);
@@ -150,7 +174,7 @@ class Renderer
 						_bufferColorOffset[(_len3 + j) * 4 + 3] = currentColorTransform.alphaOffset;
 					}
 				}
-				trace(_bufferColorMultiplier.length, _bufferAlpha.length);
+
 				_len3 += _current.indices.length;
 				
 				for (j in 0..._current.coordinates.length)
@@ -172,7 +196,7 @@ class Renderer
 			Matrix.__pool.release (triangleTransform);
 			
 		}else {
-			//render(); ???
+			_drawCall = 0;
 		}
 		
 		
