@@ -19,9 +19,10 @@ I'll try to make a renderer using context3d.drawTriangles or directly gl later i
  * colorTransform
  * center (for position and rotation)
  * clip (set of mesh that updates depending of fps set)
- 
+
 # TODO
- * group
+ * hit test
+ * group (wip in other branch)
 
 
 # Usage
@@ -29,8 +30,15 @@ Use SpriteUV2 or TexturePacker to pack your sprites with triangles. This allows 
 The more triangles you use, the smallest atlas you'll get. It also means more CPU and less GPU.
 
 With SpriteUV2, please set **Pixel Per Unit** to **1** in the **exportGroup** panel. One more advice with this tool: check **As Single File** option.
+SpriteUV2 allows you to set the pivot point for each mesh. By default, it's the center of the original image.
 
 With TexturePacker, use **XML (generic)** exporter and then set **Algorithm** to **Polygon**. I also recommend to set **Extrude** to **0**.
+With TexturePacker, the pivot point is the top left of the original image by default. 
+
+You can change the center/pivot point like this: `new SpriteTriangle(mesh, new Point(mesh.oW / 2, mesh.oH /2));`
+oW,oH (original width and height of the image source) and bounds (position and size of bounding box) are not available with SpriteUV2 due to lacks of data in the json.
+
+
 
 # Example (openfl)
 	
