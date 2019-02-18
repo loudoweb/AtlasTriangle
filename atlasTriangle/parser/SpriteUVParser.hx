@@ -58,7 +58,7 @@ class SpriteUVParser extends AtlasTriangle
 						mesh.v2[j] = 1 - mesh.v2[j];
 				}
 			}
-			add(mesh.name, mesh.tri, mesh.uv, mesh.v2);
+			add(mesh.name, mesh.tri, mesh.uv, mesh.v2);//TODO calculate bounding box
 		}
 		
 	}

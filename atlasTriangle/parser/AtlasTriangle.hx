@@ -26,7 +26,7 @@ class AtlasTriangle
 	 * @param	uv
 	 * @param	coordinates
 	 */
-	public function add(name:String, indices:Vector<Int>, uv:Vector<Float>, coordinates:Vector<Float>, oW:Int, oH:Int, bounds:Rectangle = null)
+	public function add(name:String, indices:Vector<Int>, uv:Vector<Float>, coordinates:Vector<Float>, oW:Int = 0, oH:Int = 0, bounds:Rectangle = null)
 	{
 		meshes.set(name, new Mesh(indices, uv, coordinates, textureID, oW, oH, bounds));
 	}
@@ -46,7 +46,7 @@ class AtlasTriangle
 	/**
 	 * Get data of a Clip
 	 * @param	name of the Sprite in the atlas
-	 * @return
+	 * @return All meshes starting with `name`
 	 */
 	public function getClip(name:String):Array<Mesh>
 	{
