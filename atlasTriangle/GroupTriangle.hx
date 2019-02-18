@@ -16,6 +16,7 @@ class GroupTriangle extends SpriteTriangle
 		super(null, center);
 		_children = [];
 		length = 0;
+		hasChildren = true;
 	}
 	
 	public function addChild(child:SpriteTriangle):SpriteTriangle

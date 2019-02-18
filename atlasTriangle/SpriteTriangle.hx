@@ -30,6 +30,7 @@ class SpriteTriangle extends Mesh
 	public var scaleY(get, set):Null<Float>;
 	
 	public var isDirty:Bool;
+	public var hasChildren(default, null):Bool;
 	
 	public var elapsedTime:Int;
 	
@@ -55,6 +56,7 @@ class SpriteTriangle extends Mesh
 		
 		elapsedTime = 0;
 		shader = DEFAULT_SHADER;
+		hasChildren = false;
 	}
 	
 	public function get_x():Float

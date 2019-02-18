@@ -59,41 +59,101 @@ class Renderer
 	
 	public function update(deltaTime:Int):Void
 	{
+		advance(deltaTime);
+		
+		if (isDirty)
+		{
+			cleanBuffers();
+			_lastBitmap = "";
+			_lastShader = null;
+			buildBuffer(_group);
+			isDirty = false;
+		}
+		
+		
+		#if gl_stats
+		Log.info('$_drawCall drawCalls (total ${Context3DStats.totalDrawCalls()})');//must compile with -Dgl_stats
+		#else
+		Log.info('$_drawCall drawCalls');
+		#end
+		
+		_drawCall = 0;
+	}
+	
+	inline function cleanBuffers():Void
+	{
+		#if flash
+		_bufferCoor.splice(0, _bufferCoor.length);
+		_bufferUV.splice(0, _bufferUV.length);
+		_bufferIndices.splice(0, _bufferIndices.length);
+		_bufferAlpha.splice(0, _bufferAlpha.length);
+		_bufferColorMultiplier.splice(0, _bufferColorMultiplier.length);
+		_bufferColorOffset.splice(0, _bufferColorOffset.length);
+		#else
+		//don't use splice to empty the buffers, otherwise Vector sent will be overwritten before rendering
+		//TODO use pool
+		_bufferCoor = new Vector<Float>();
+		_bufferUV = new Vector<Float>();
+		_bufferIndices = new Vector<Int>();
+		_bufferAlpha = [];
+		_bufferColorMultiplier = [];
+		_bufferColorOffset = [];
+		#end
+		
+	}
+	
+	function advance(deltaTime:Int):Void
+	{
+		//update
+		var _current:SpriteTriangle;
+		for (i in 0..._group.length)
+		{
+			_current = _group._children[i];
+			_current.update(deltaTime);
+		}
+		
 		if (_group.isDirty)
 		{
 			isDirty = true;
 		}
-		if (isDirty)
-		{
-			_drawCall = 0;
-			cleanBuffers();
-						
-			_lastBitmap = "";
-			_lastShader = null;
-			var _render:Bool;
-			var _current:SpriteTriangle;
-			var _len = 0;
-			var _len2 = 0;
-			var _len3 = 0;
-			var triangleTransform = Matrix.__pool.get ();
-			
-			var defaultColorTransform = _canvas.__worldColorTransform;
-			var hasColorTransform = true;
-			var currentColorTransform = null;
+	}
+	
+	function buildBuffer(group:GroupTriangle, parentTransform:Matrix = null):Void
+	{
+		//rendering
+		
+		if (group.length == 0)
+			return;
+					
+		var _render:Bool;
+		var _current:SpriteTriangle;
+		var _len = 0;
+		var _len2 = 0;
+		var _len3 = 0;
+		var triangleTransform = Matrix.__pool.get ();
+		var defaultColorTransform = _canvas.__worldColorTransform;
+		var hasColorTransform = true;
+		var currentColorTransform = null;
 
-			for (i in 0..._group.length)
-			{
-				_render = false;
+		for (i in 0...group.length)
+		{
+			_render = false;
+			
+			_current = group._children[i];
+			
+			triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
+			triangleTransform.concat (_current.matrix);
+			if(parentTransform != null)
+				triangleTransform.concat (parentTransform);
+			triangleTransform.tx = Math.round (triangleTransform.tx);
+			triangleTransform.ty = Math.round (triangleTransform.ty);
+			
+			if (_current.hasChildren) {
 				
-				_current = _group._children[i];
-				_current.update(deltaTime);
+				buildBuffer(cast _current, triangleTransform);
 				
-				triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
-				triangleTransform.concat (_current.matrix);
-				//triangleTransform.concat (parentTransform);
-				triangleTransform.tx = Math.round (triangleTransform.tx);
-				triangleTransform.ty = Math.round (triangleTransform.ty);
-				
+			}else {
+			
 				if (_current.textureID != _lastBitmap) {
 					if (_lastBitmap != "")
 					{
@@ -122,7 +182,7 @@ class Renderer
 					_lastBitmap = _current.textureID;
 					_lastShader = _current.shader;
 				}
-				
+			
 				//_bufferCoor = _bufferCoor.concat(_current.coor_computed);
 				//_bufferUV = _bufferUV.concat(_current.uv);
 				//_bufferIndices = _bufferIndices.concat(_current.indices);
@@ -157,7 +217,7 @@ class Renderer
 						_bufferColorOffset[(_len3 + j) * 4 + 3] = currentColorTransform.alphaOffset;
 					}
 				}
-				trace(_bufferColorMultiplier.length, _bufferAlpha.length);
+
 				_len3 += _current.indices.length;
 				
 				for (j in 0..._current.coordinates.length)
@@ -167,55 +227,19 @@ class Renderer
 					else
 						_bufferCoor[_len + j] = triangleTransform.__transformY(_current.coordinates[j - 1], _current.coordinates[j]);
 				}
-				_len += _current.coordinates.length;				
-
+				_len += _current.coordinates.length;	
+			
 			}
-			
-			isDirty = false;
-			_group.isDirty = false;
-			
-			if(_len3 > 0)
-				render(_lastBitmap, _lastShader, hasColorTransform);
-				
-			Matrix.__pool.release (triangleTransform);
-			
-		}else {
-			//render(); ???
+
 		}
 		
+		group.isDirty = false;
 		
-		
-		#if gl_stats
-		Log.info('$_drawCall drawCalls (total ${Context3DStats.totalDrawCalls()})');//must compile with -Dgl_stats
-		#else
-		Log.info('$_drawCall drawCalls');
-		#end
-	}
-	
-	inline function cleanBuffers():Void
-	{
-		#if flash
-		_bufferCoor.splice(0, _bufferCoor.length);
-		_bufferUV.splice(0, _bufferUV.length);
-		_bufferIndices.splice(0, _bufferIndices.length);
-		_bufferAlpha.splice(0, _bufferAlpha.length);
-		_bufferColorMultiplier.splice(0, _bufferColorMultiplier.length);
-		_bufferColorOffset.splice(0, _bufferColorOffset.length);
-		#else
-		//don't use splice to empty the buffers, otherwise Vector sent will be overwritten before rendering
-		//TODO use pool
-		_bufferCoor = new Vector<Float>();
-		_bufferUV = new Vector<Float>();
-		_bufferIndices = new Vector<Int>();
-		_bufferAlpha = [];
-		_bufferColorMultiplier = [];
-		_bufferColorOffset = [];
-		#end
-		
-	}
-	
-	function buildBuffer(group:GroupTriangle):Void
-	{
+		if(_len3 > 0)
+			render(_lastBitmap, _lastShader, hasColorTransform);
+			
+		Matrix.__pool.release (triangleTransform);
+			
 		
 	}
 	

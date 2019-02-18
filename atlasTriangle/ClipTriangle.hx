@@ -32,7 +32,6 @@ class ClipTriangle extends SpriteTriangle
 				
 		if (_lastFrame != frame)
 		{
-			isDirty = true;
 			_lastFrame = frame;
 						
 			//update current mesh
@@ -41,6 +40,8 @@ class ClipTriangle extends SpriteTriangle
 			indices = current.indices;
 			uv = current.uv;
 			textureID = current.textureID;
+			
+			__setRenderDirty();
 		}
 		
 		

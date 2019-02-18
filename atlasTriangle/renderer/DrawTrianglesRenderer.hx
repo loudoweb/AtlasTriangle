@@ -23,11 +23,11 @@ class DrawTrianglesRenderer extends Renderer
 		#end
 	}
 	
-	override public function update(deltaTime:Int):Void 
-	{		
-		var _wasDirty = _group.isDirty;
+	override function advance(deltaTime:Int):Void 
+	{	
+		super.advance(deltaTime);
 		
-		if (_wasDirty)
+		if (isDirty)
 		{
 			_canvas.graphics.clear();
 			#if triangle_debug
@@ -35,9 +35,14 @@ class DrawTrianglesRenderer extends Renderer
 			#end
 		}
 		
+	}
+	
+	override public function update(deltaTime:Int):Void 
+	{
 		super.update(deltaTime);
 		
-		if (_wasDirty)
+		//TOFIX
+		if (_drawCall > 0)
 		{
 			_canvas.graphics.endFill();
 			#if triangle_debug
@@ -49,6 +54,7 @@ class DrawTrianglesRenderer extends Renderer
 	override function render(bitmapID:String, shader:GraphicsShader, hasColor:Bool):Void 
 	{
 		super.render(bitmapID, shader, hasColor);
+		trace(bitmapID, _bufferCoor, "\n", _bufferUV);
 		//trace(_bufferCoor, "\n", _bufferIndices, "\n", _bufferUV, "\n", _bufferAlpha);
 		//trace(_bufferColorMultiplier, "\n", _bufferColorOffset);
 		#if flash
