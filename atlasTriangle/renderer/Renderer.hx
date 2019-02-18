@@ -38,6 +38,7 @@ class Renderer
 	var _drawCall:Int = 0;
 	
 	public var isDirty:Bool;
+	public var hasColorTransform:Bool;
 	
 	public var bitmaps:StringMap<BitmapData>;
 
@@ -52,6 +53,7 @@ class Renderer
 		_bufferColorMultiplier = [];
 		_bufferColorOffset = [];
 		bitmaps = new StringMap<BitmapData>();
+		hasColorTransform = false;
 	}
 	
 	public function update(deltaTime:Int):Void
@@ -74,6 +76,10 @@ class Renderer
 			{
 				isDirty = true;
 			}
+			if (_current.colorTransform != null)
+			{
+				hasColorTransform = true;
+			}
 		}
 	}
 	
@@ -95,7 +101,6 @@ class Renderer
 			var triangleTransform = Matrix.__pool.get ();
 			
 			var defaultColorTransform = _canvas.__worldColorTransform;
-			var hasColorTransform = true;
 			var currentColorTransform = null;
 
 			for (i in 0..._children.length)
@@ -108,8 +113,8 @@ class Renderer
 				triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
 				triangleTransform.concat (_current.matrix);
 				//triangleTransform.concat (parentTransform);
-				triangleTransform.tx = Math.round (triangleTransform.tx);
-				triangleTransform.ty = Math.round (triangleTransform.ty);
+				//triangleTransform.tx = Math.round (triangleTransform.tx);
+				//triangleTransform.ty = Math.round (triangleTransform.ty);
 				
 				if (_current.textureID != _lastBitmap) {
 					if (_lastBitmap != "")
@@ -189,6 +194,7 @@ class Renderer
 			}
 			
 			isDirty = false;
+			hasColorTransform = false;
 			
 			if(_len3 > 0)
 				render(_lastBitmap, _lastShader, hasColorTransform);
