@@ -1,5 +1,4 @@
 package atlasTriangle.renderer;
-import atlasTriangle.GroupTriangle;
 import atlasTriangle.SpriteTriangle;
 import haxe.ds.StringMap;
 import lime.utils.Log;
@@ -14,7 +13,6 @@ import openfl._internal.renderer.context3D.stats.Context3DStats;
 
 @:access(openfl.geom.Matrix)
 @:access(openfl.display.DisplayObject)
-@:access(atlasTriangle.GroupTriangle)
 
 /**
  * ...
@@ -23,7 +21,7 @@ import openfl._internal.renderer.context3D.stats.Context3DStats;
 class Renderer
 {
 	
-	var _group:GroupTriangle;
+	var _children:Array<SpriteTriangle>;
 	
 	var _bufferCoor:Vector<Float>;
 	var _bufferUV:Vector<Float>;
@@ -39,15 +37,14 @@ class Renderer
 	
 	var _drawCall:Int = 0;
 	
-	public var bitmaps:StringMap<BitmapData>;
-	
 	public var isDirty:Bool;
 	
+	public var bitmaps:StringMap<BitmapData>;
 
 	public function new(canvas:Sprite) 
 	{
 		_canvas = canvas;
-		_group = new GroupTriangle();
+		_children = [];
 		_bufferCoor = new Vector<Float>();
 		_bufferUV = new Vector<Float>();
 		_bufferIndices = new Vector<Int>();
@@ -59,10 +56,6 @@ class Renderer
 	
 	public function update(deltaTime:Int):Void
 	{
-		if (_group.isDirty)
-		{
-			isDirty = true;
-		}
 		if (isDirty)
 		{
 			_drawCall = 0;
@@ -81,11 +74,11 @@ class Renderer
 			var hasColorTransform = true;
 			var currentColorTransform = null;
 
-			for (i in 0..._group.length)
+			for (i in 0..._children.length)
 			{
 				_render = false;
 				
-				_current = _group._children[i];
+				_current = _children[i];
 				_current.update(deltaTime);
 				
 				triangleTransform.setTo (1, 0, 0, 1, -_current.center.x, -_current.center.y);
@@ -172,7 +165,6 @@ class Renderer
 			}
 			
 			isDirty = false;
-			_group.isDirty = false;
 			
 			if(_len3 > 0)
 				render(_lastBitmap, _lastShader, hasColorTransform);
@@ -214,11 +206,6 @@ class Renderer
 		
 	}
 	
-	function buildBuffer(group:GroupTriangle):Void
-	{
-		
-	}
-	
 	function render(bitmapID:String, shader:GraphicsShader, hasColor:Bool):Void
 	{
 		_drawCall++;	
@@ -226,14 +213,20 @@ class Renderer
 	
 	public function addChild(sprite:SpriteTriangle):Void
 	{
-		_group.addChild(sprite);
+		_children.push(sprite);
 		isDirty = true;
 	}
 	
 	public function addChildAt(sprite:SpriteTriangle, index:Int):Void
 	{
 		
-		_group.addChildAt(sprite, index);
+		if( index > _children.length){
+			_children.push(sprite);
+		}else if(index <= 0){
+			_children.unshift(sprite);
+		}else {
+			_children.insert(index, sprite);
+		}
 		isDirty = true;
 	}
 	
@@ -243,7 +236,11 @@ class Renderer
 	 */
 	public function removeChildAt(index:Int):Void 
 	{
-		_group.removeChildAt(index);
+		if (index >= 0 && index < _children.length) {
+			_children.splice(index, 1);
+		}else {
+			trace('index outside range');
+		}
 		isDirty = true;
 	}
 	/**
@@ -251,7 +248,7 @@ class Renderer
 	 */
 	public function removeAll():Void
 	{
-		_group.removeChildren(0, _group.length);
+		_children.splice(0, _children.length);
 		isDirty = true;
 	}
 	
@@ -262,7 +259,7 @@ class Renderer
 	 */
 	public function getIndex(sprite:SpriteTriangle):Int
 	{
-		return _group.getChildIndex(sprite);
+		return _children.indexOf(sprite);
 	}
 	
 	/**
@@ -270,9 +267,13 @@ class Renderer
 	 * @param	index
 	 * @return
 	 */
-	public function getChildAt(index:Int):SpriteTriangle
+	public function getSpriterAt(index:Int):SpriteTriangle
 	{
-		return _group.getChildAt(index);
+		if (index >= 0 && index < _children.length)
+			return _children[index];
+		else
+			trace("index outside range");
+		return null;
 	}
 	
 	/**
@@ -282,8 +283,10 @@ class Renderer
 	 */
 	public function swap(sprite1:SpriteTriangle, sprite2:SpriteTriangle):Void
 	{
-		_group.swapChildren(sprite1, sprite2);
-		isDirty = true;
+		var index1 = getIndex(sprite1);
+		var index2 = getIndex(sprite2);
+		if (index1 == -1 || index2 == -1) trace("Not in this container");
+		swapAt(index1, index2);
 	}
 	
 	/**
@@ -293,7 +296,10 @@ class Renderer
 	 */
 	public function swapAt(index1:Int, index2:Int):Void
 	{
-		_group.swapChildrenAt(index1, index2);
+		var spriter1 = getSpriterAt(index1);
+		var spriter2 = getSpriterAt(index2);
+		_children[index1] = spriter2;
+		_children[index2] = spriter1;
 		isDirty = true;
 	}
 	
