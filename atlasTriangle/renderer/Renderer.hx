@@ -83,7 +83,7 @@ class Renderer
 		}
 	}
 	
-	inline function prepareBuffers():Void
+	function prepareBuffers():Void
 	{
 		if (isDirty)
 		{
@@ -98,9 +98,9 @@ class Renderer
 			var _len = 0;
 			var _len2 = 0;
 			var _len3 = 0;
-			var triangleTransform = Matrix.__pool.get ();
+			var triangleTransform = #if !flash Matrix.__pool.get () #else new Matrix() #end;//TODO pool for flash
 			
-			var defaultColorTransform = _canvas.__worldColorTransform;
+			var defaultColorTransform = #if !flash _canvas.__worldColorTransform #else _canvas.transform.colorTransform #end;
 			var currentColorTransform = null;
 
 			for (i in 0..._children.length)
@@ -184,10 +184,19 @@ class Renderer
 				
 				for (j in 0..._current.coordinates.length)
 				{
-					if(j % 2 == 0)
+					if (j % 2 == 0) {
+						#if !flash
 						_bufferCoor[_len + j] = triangleTransform.__transformX(_current.coordinates[j], _current.coordinates[j + 1]);
-					else
+						#else
+						_bufferCoor[_len + j] = _current.coordinates[j] * triangleTransform.a + _current.coordinates[j + 1] * triangleTransform.c + triangleTransform.tx;
+						#end
+					}else {
+						#if !flash
 						_bufferCoor[_len + j] = triangleTransform.__transformY(_current.coordinates[j - 1], _current.coordinates[j]);
+						#else
+						_bufferCoor[_len + j] = _current.coordinates[j - 1] * triangleTransform.b + _current.coordinates[j] * triangleTransform.d + triangleTransform.ty;
+						#end
+					}
 				}
 				_len += _current.coordinates.length;				
 
@@ -199,10 +208,10 @@ class Renderer
 			if(_len3 > 0)
 				render(_lastBitmap, _lastShader, hasColorTransform);
 				
+			#if !flash
 			Matrix.__pool.release (triangleTransform);
+			#end
 			
-		}else {
-			_drawCall = 0;
 		}
 		
 		
@@ -212,6 +221,7 @@ class Renderer
 		#else
 		Log.info('$_drawCall drawCalls');
 		#end
+		_drawCall = 0;
 	}
 	
 	inline function cleanBuffers():Void
