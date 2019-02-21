@@ -21,7 +21,6 @@ I'll try to make a renderer using context3d.drawTriangles or directly gl later i
  * clip (set of mesh that updates depending of fps set)
 
 # TODO
- * improve GraphicsShader to handle better rotation
  * hit test
  * group (wip in other branch)
 
