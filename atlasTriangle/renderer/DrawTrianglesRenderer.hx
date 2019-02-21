@@ -60,6 +60,7 @@ class DrawTrianglesRenderer extends Renderer
 		_canvas.graphics.beginBitmapFill(bitmaps.get(bitmapID), null, false, true);
 		#else
 		shader.bitmap.input = bitmaps.get(bitmapID);
+		shader.bitmap.filter = LINEAR;
 		shader.triangle_Alpha.value = _bufferAlpha;
 		shader.triangle_HasColorTransform.value = [hasColor];
 		if (hasColor)
