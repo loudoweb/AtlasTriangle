@@ -1,8 +1,13 @@
 package atlasTriangle.parser;
 import atlasTriangle.parser.AtlasTriangle;
-import haxe.xml.Fast;
 import openfl.Vector;
 import openfl.geom.Rectangle;
+
+#if (haxe_ver >= 4)
+typedef Access = haxe.xml.Access;
+#else
+typedef Access = haxe.xml.Fast;
+#end
 
 typedef TexturePackerPolygon = {
   var frames:Array<Sprite>;
@@ -52,7 +57,7 @@ class TexturePackerParser extends AtlasTriangle
 	public static function parseXML(xml:Xml):TexturePackerParser
 	{
 		var t = new TexturePackerParser();
-		var fast:Fast = new Fast(xml.firstElement());
+		var fast:Access = new Access(xml.firstElement());
 		
 		t.textureID = fast.att.imagePath;
 		
