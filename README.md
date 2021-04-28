@@ -4,6 +4,8 @@ Allow to use atlas packed with triangles with such tools as [SpriteUV2](https://
 # Renderer
 Openfl Renderer using graphics.drawTriangles (gpu accelerated)
 I'll try to make a renderer using context3d.drawTriangles or directly gl later if it can improve performance or reduce memory footprint
+PR welcome to add other engines renderer :)
+
 
 # features
  * Batching (one drawcall per bitmapdata or shader instance)
@@ -21,7 +23,6 @@ I'll try to make a renderer using context3d.drawTriangles or directly gl later i
  * clip (set of mesh that updates depending of fps set)
 
 # TODO
- * hit test
  * group (wip in other branch)
 
 
