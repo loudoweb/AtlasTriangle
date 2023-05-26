@@ -37,8 +37,6 @@ class SpriteTriangle extends Mesh
 	private var __rotation:Null<Float>;
 	private var __scaleX:Null<Float>;
 	private var __scaleY:Null<Float>;
-	
-	//TODO color, blend, rotation
 	//TODO pool
 	
 	public function new(mesh:Mesh, center:Point = null) 

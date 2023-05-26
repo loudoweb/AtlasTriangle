@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": ["openfl", "game", "parser"],
 	"description": "Parse atlases packed with triangles with such tools as SpriteUV2 or TexturePacker for Haxe language. Basic openfl renderer included.",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"releasenote": "Initial project.",
 	"contributors": [ "loudoweb" ]
 }

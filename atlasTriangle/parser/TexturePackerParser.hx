@@ -71,7 +71,12 @@ class TexturePackerParser extends AtlasTriangle
 			i = 0;
 			
 			var indices:Vector<Int> = Vector.ofArray(sprite.node.triangles.innerData.toString().split(' ').map(Std.parseInt));
-			var uv:Vector<Float> = Vector.ofArray(sprite.node.verticesUV.innerData.toString().split(' ').map(function (str:String) return i % 2 == 0 ? Std.parseInt(str) / w : Std.parseInt(str) / h));
+			var uv:Vector<Float> = Vector.ofArray(sprite.node.verticesUV.innerData.toString().split(' ').map(function (str:String) {
+				var out = i % 2 == 0 ? Std.parseInt(str) / w : Std.parseInt(str) / h; 
+				i++;
+				return out;
+			}));
+
 			var vertices:Vector<Float> = Vector.ofArray(sprite.node.vertices.innerData.toString().split(' ').map(Std.parseFloat));
 			/**
 			//TODO test this instead of map for performance
@@ -81,13 +86,22 @@ class TexturePackerParser extends AtlasTriangle
 					index++;
 				}
 			 */
+			var oW = sprite.has.oW ? Std.parseInt(sprite.att.oW) : Std.parseInt(sprite.att.w);
+			var oH = sprite.has.oH ? Std.parseInt(sprite.att.oH) : Std.parseInt(sprite.att.h);
+			var oX = sprite.has.oX ? Std.parseInt(sprite.att.oX) : 0;
+			var oY = sprite.has.oY ? Std.parseInt(sprite.att.oY) : 0;
 			t.add(sprite.att.n, indices, uv, vertices, 
-					Std.parseInt(sprite.att.oW), Std.parseInt(sprite.att.oH), 
-					new Rectangle(Std.parseInt(sprite.att.oX), Std.parseInt(sprite.att.oY), Std.parseInt(sprite.att.w), Std.parseInt(sprite.att.h)));
+					oW, oH, 
+					new Rectangle(oX, oY, Std.parseInt(sprite.att.w), Std.parseInt(sprite.att.h)));
 		}
 		return t;
 	}
 	
+	/**
+	 * 
+	 * @param	json (ARRAY)
+	 * @return
+	 */
 	public static function parseJSON(json:String):TexturePackerParser
 	{
 		var t = new TexturePackerParser();

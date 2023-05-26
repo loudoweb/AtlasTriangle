@@ -73,9 +73,27 @@ class DrawTrianglesRenderer extends Renderer
 		_canvas.graphics.drawTriangles(_bufferCoor, _bufferIndices, _bufferUV);
 		
 		#if triangle_debug
-		//TODO
 		_debug.graphics.lineStyle(2, 0xff0000, 0.7);
-		_debug.graphics.drawTriangles(_bufferCoor.copy(), _bufferIndices.copy(), _bufferUV.copy());
+		var t = 0;
+		for (i in 0..._bufferIndices.length)
+		{
+			var buf = _bufferIndices[i];
+			var x = _bufferCoor[buf * 2];
+			var y = _bufferCoor[buf * 2 + 1];
+			if (t == 0){
+				_debug.graphics.moveTo(x, y);
+			}
+			_debug.graphics.lineTo(x, y);
+			t++;
+			if (t == 3)
+			{
+				buf = _bufferIndices[i - 2];
+				x = _bufferCoor[buf * 2];
+				y = _bufferCoor[buf * 2 + 1];
+				_debug.graphics.lineTo(x, y);
+				t = 0;
+			}
+		}
 		#end
 		
 	}
