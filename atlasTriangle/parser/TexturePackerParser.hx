@@ -70,7 +70,8 @@ class TexturePackerParser extends AtlasTriangle
 		{
 			i = 0;
 			
-			var indices:Vector<Int> = Vector.ofArray(sprite.node.triangles.innerData.toString().split(' ').map(Std.parseInt));
+			var indicesArray = sprite.node.triangles.innerData.toString().split(' ').map(Std.parseInt);
+			var indices:Vector<Int> = Vector.ofArray(indicesArray);
 			var uv:Vector<Float> = Vector.ofArray(sprite.node.verticesUV.innerData.toString().split(' ').map(function (str:String) {
 				var out = i % 2 == 0 ? Std.parseInt(str) / w : Std.parseInt(str) / h; 
 				i++;
